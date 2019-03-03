@@ -8,7 +8,9 @@ TILE_REACH["big-electric-pole"] = 30
 
 local requests = {}
 
-function on_built(e)
+function on_built(e)    
+    if e.stack.name == "blueprint" then return end
+
     local ent = e.created_entity
     if ent.name == "entity-ghost" and (ent.ghost_name == "small-electric-pole" or
         ent.ghost_name == "big-electric-pole" or
@@ -21,7 +23,7 @@ function on_built(e)
             -- place the target pole size near the closest.
             -- Do this when the path is known
             if remote.name ~= ent.ghost_name then
-                local surface = game.surfaces[1]
+                local surface = ent.surface
                 local bounds = remote.bounding_box
                 bounds.left_top.x = bounds.left_top.x - (TILE_REACH[remote.name] - TILE_REACH[ent.ghost_name])
                 bounds.left_top.y = bounds.left_top.y + (TILE_REACH[remote.name] - TILE_REACH[ent.ghost_name])
