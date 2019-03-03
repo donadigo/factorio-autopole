@@ -8,7 +8,7 @@ TILE_REACH["big-electric-pole"] = 30
 
 local requests = {}
 
-function on_built(e)    
+function on_built(e)
     if e.stack.name == "blueprint" then return end
 
     local ent = e.created_entity
@@ -38,12 +38,15 @@ function on_built(e)
                 }
             end
 
-            local current_request = pathfinder.partial_a_star(ent.surface, remote.position, ent.position, 300)
-            current_request.remote = remote
-            current_request.ent = ent
-            current_request.player_index = e.player_index
-
-            table.insert(requests, current_request)
+            local request = pathfinder.partial_a_star(ent.surface, remote.position, ent.position, 300)
+            request.remote = remote
+            request.ent = ent
+            request.player_index = e.player_index
+            if request.completed then
+                complete_poles(request)
+            else
+                table.insert(requests, request)
+            end
         end
     end
 end
