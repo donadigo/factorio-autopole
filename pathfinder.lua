@@ -34,7 +34,7 @@ pathfinder.__index = pathfinder
 -- If the search completes, the path object will be inside of the returned table { completed = true, path = { ... }}
 -- If the search is not yet completed, the returned table will be { completed = false, ... }
 -- Pathfinding can be resumed with pathfinder.resume_a_star
-function pathfinder.partial_a_star(surface, start_pos, goal_pos, max_iterations)
+function pathfinder.partial_a_star(surface, start_pos, goal_pos, max_iterations, max_total_iterations)
     local start_tile = Tile.from_position(start_pos)
     local goal_tile = Tile.from_position(goal_pos)
 
@@ -59,6 +59,7 @@ function pathfinder.partial_a_star(surface, start_pos, goal_pos, max_iterations)
         g_score = g_score,
         f_score = f_score,
         iterations = 0,
+        max_total_iterations = max_total_iterations,
         completed = false
     }
     return pathfinder.resume_a_star(pathfinding_data, max_iterations)
@@ -76,7 +77,7 @@ function pathfinder.resume_a_star(pathfinding_data, max_iterations)
 end
 
 -- Find a complete path on the given surface between the start_pos and goal_pos
-function pathfinder.a_star(surface, start_pos, goal_pos)
+function pathfinder.a_star(surface, start_pos, goal_pos, max_total_iterations)
     local start_tile = Tile.from_position(start_pos)
     local goal_tile = Tile.from_position(goal_pos)
 
@@ -101,6 +102,7 @@ function pathfinder.a_star(surface, start_pos, goal_pos)
         g_score = g_score,
         f_score = f_score,
         iterations = 0,
+        max_total_iterations = max_total_iterations,
         completed = false
     }
     while not pathfinding_data.completed do
@@ -113,6 +115,13 @@ function pathfinder.a_star(surface, start_pos, goal_pos)
 end
 
 function pathfinder.step_a_star(data)
+    if data.iterations > data.max_total_iterations then
+        data.completed = true
+        return nil
+    end
+
+    data.iterations = data.iterations + 1
+
     local current = pathfinder.lowest_f_score(data.open_set, data.f_score)
     if not current then
         data.completed = true
