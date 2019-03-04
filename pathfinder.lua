@@ -34,7 +34,7 @@ pathfinder.__index = pathfinder
 -- If the search completes, the path object will be inside of the returned table { completed = true, path = { ... }}
 -- If the search is not yet completed, the returned table will be { completed = false, ... }
 -- Pathfinding can be resumed with pathfinder.resume_a_star
-function pathfinder.partial_a_star(surface, start_pos, goal_pos, max_iterations, max_total_iterations)
+function pathfinder.partial_a_star(surface, entity, start_pos, goal_pos, max_iterations, max_total_iterations)
     local start_tile = Tile.from_position(start_pos)
     local goal_tile = Tile.from_position(goal_pos)
 
@@ -60,6 +60,7 @@ function pathfinder.partial_a_star(surface, start_pos, goal_pos, max_iterations,
         f_score = f_score,
         iterations = 0,
         max_total_iterations = max_total_iterations,
+        entity = entity,
         completed = false
     }
     return pathfinder.resume_a_star(pathfinding_data, max_iterations)
@@ -77,7 +78,7 @@ function pathfinder.resume_a_star(pathfinding_data, max_iterations)
 end
 
 -- Find a complete path on the given surface between the start_pos and goal_pos
-function pathfinder.a_star(surface, start_pos, goal_pos, max_total_iterations)
+function pathfinder.a_star(surface, entity, start_pos, goal_pos, max_total_iterations)
     local start_tile = Tile.from_position(start_pos)
     local goal_tile = Tile.from_position(goal_pos)
 
@@ -103,6 +104,7 @@ function pathfinder.a_star(surface, start_pos, goal_pos, max_total_iterations)
         f_score = f_score,
         iterations = 0,
         max_total_iterations = max_total_iterations,
+        entity = entity,
         completed = false
     }
     while not pathfinding_data.completed do
@@ -139,7 +141,7 @@ function pathfinder.step_a_star(data)
     data.open_set[current_key] = nil
     data.closed_set[current_key] = true
 
-    local neighbors = pathfinder.neighbor_nodes(data.surface, current)
+    local neighbors = pathfinder.neighbor_nodes(data.surface, data.entity, current)
     for _, neighbor in pairs(neighbors) do
         local key = pathfinder.node_key(neighbor)
         if not data.closed_set[key] then
@@ -167,12 +169,12 @@ function pathfinder.heuristic_cost_estimate(nodeA, nodeB)
     return math.abs(nodeB.x - nodeA.x) + math.abs(nodeB.y - nodeA.y)
 end
 
-function pathfinder.neighbor_nodes(surface, center_node)
+function pathfinder.neighbor_nodes(surface, entity, center_node)
     local neighbors = {}
     local adjacent = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}, {-1, -1}, {1, 1}, {-1, 1}, {1, -1}}
     for _, tuple in pairs(adjacent) do
-        local tile = surface.get_tile(center_node.x + tuple[1], center_node.y + tuple[2])
-        if tile.valid and not string.find(tile.name, "water", 1, true) then
+        local position = {x = center_node.x + tuple[1], y = center_node.y + tuple[2]}
+        if surface.can_place_entity{name=entity.ghost_name, position=position, force=entity.force} then
             table.insert(neighbors, {x = center_node.x + tuple[1], y = center_node.y + tuple[2]})
         end
     end

@@ -38,7 +38,7 @@ function on_built(e)
                 }
             end
 
-            local request = pathfinder.partial_a_star(ent.surface, remote.position, ent.position, 100, 10000)
+            local request = pathfinder.partial_a_star(ent.surface, ent, remote.position, ent.position, 100, 10000)
             request.remote = remote
             request.ent = ent
             request.player_index = e.player_index
