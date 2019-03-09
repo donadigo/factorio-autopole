@@ -25,7 +25,7 @@
 -- SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -- ======================================================================
 
-require 'stdlib/area/tile'
+local Tile = require('__stdlib__/stdlib/area/tile')
 
 pathfinder = {}
 pathfinder.__index = pathfinder
