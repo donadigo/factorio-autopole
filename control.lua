@@ -9,7 +9,7 @@ TILE_REACH["big-electric-pole"] = 30
 local requests = {}
 
 function on_built(e)
-    if e.stack.name == "blueprint" then return end
+    if e.valid_for_read and e.stack.name == "blueprint" then return end
 
     local ent = e.created_entity
     if ent.name == "entity-ghost" and (ent.ghost_name == "small-electric-pole" or
